@@ -43,6 +43,7 @@ class NvFp4MoeBackend(Enum):
     FLASHINFER_CUTLASS = "FLASHINFER_CUTLASS"
     FLASHINFER_CUTEDSL = "FLASHINFER_CUTEDSL"
     FLASHINFER_CUTEDSL_BATCHED = "FLASHINFER_CUTEDSL_BATCHED"
+    FLASHINFER_B12X = "FLASHINFER_B12X"
     VLLM_CUTLASS = "VLLM_CUTLASS"
     MARLIN = "MARLIN"
     EMULATION = "EMULATION"
@@ -53,6 +54,7 @@ FLASHINFER_NVFP4_MOE_BACKENDS = [
     NvFp4MoeBackend.FLASHINFER_CUTLASS,
     NvFp4MoeBackend.FLASHINFER_CUTEDSL,
     NvFp4MoeBackend.FLASHINFER_CUTEDSL_BATCHED,
+    NvFp4MoeBackend.FLASHINFER_B12X,
 ]
 
 fi_2_vllm_backend_map: dict[FlashinferMoeBackend, NvFp4MoeBackend] = {
@@ -106,6 +108,13 @@ def backend_to_kernel_cls(
 
         return [FlashInferCuteDSLBatchedExperts]
 
+    elif backend == NvFp4MoeBackend.FLASHINFER_B12X:
+        from vllm.model_executor.layers.fused_moe.experts.flashinfer_b12x_moe import (  # noqa: E501
+            FlashInferB12xExperts,
+        )
+
+        return [FlashInferB12xExperts]
+
     elif backend == NvFp4MoeBackend.VLLM_CUTLASS:
         from vllm.model_executor.layers.fused_moe.experts.cutlass_moe import (
             CutlassExpertsFp4,
@@ -136,6 +145,7 @@ def map_nvfp4_backend(runner_backend: MoEBackend) -> NvFp4MoeBackend:
         "flashinfer_trtllm": NvFp4MoeBackend.FLASHINFER_TRTLLM,
         "flashinfer_cutlass": NvFp4MoeBackend.FLASHINFER_CUTLASS,
         "flashinfer_cutedsl": NvFp4MoeBackend.FLASHINFER_CUTEDSL,
+        "flashinfer_b12x": NvFp4MoeBackend.FLASHINFER_B12X,
         "marlin": NvFp4MoeBackend.MARLIN,
         "emulation": NvFp4MoeBackend.EMULATION,
     }
@@ -162,6 +172,7 @@ def select_nvfp4_moe_backend(
         NvFp4MoeBackend.FLASHINFER_TRTLLM,
         NvFp4MoeBackend.FLASHINFER_CUTEDSL,
         NvFp4MoeBackend.FLASHINFER_CUTEDSL_BATCHED,
+        NvFp4MoeBackend.FLASHINFER_B12X,
         NvFp4MoeBackend.FLASHINFER_CUTLASS,
         NvFp4MoeBackend.VLLM_CUTLASS,
         NvFp4MoeBackend.MARLIN,
